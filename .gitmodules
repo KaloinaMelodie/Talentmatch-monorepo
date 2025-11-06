@@ -1,0 +1,8 @@
+[submodule "TalentMatch"]
+	path = TalentMatch
+	url = https://github.com/ericonomena/TalentMatch.git
+	branch = main
+[submodule "Front-TalentMatch"]
+	path = Front-TalentMatch
+	url = https://github.com/Finaritra24/Front-TalentMatch.git
+	branch = main
