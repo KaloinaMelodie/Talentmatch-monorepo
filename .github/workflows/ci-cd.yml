@@ -67,7 +67,7 @@ jobs:
           file: ./TalentMatch/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: ericonomena/talentmatch:latest
+          tags: kaloina/back-talentmatch:latest
 
 
 
@@ -95,5 +95,5 @@ jobs:
           file: ./Front-TalentMatch/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: finaritra24/front-talentMatch:latest
+          tags: kaloina/front-talentMatch:latest
 
