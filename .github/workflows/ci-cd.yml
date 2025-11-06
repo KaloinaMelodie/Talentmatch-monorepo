@@ -43,6 +43,23 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # - name: Build & Push Backend (TalentMatch)
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./TalentMatch
+      #     file: ./TalentMatch/Dockerfile
+      #     push: true
+      #     platforms: linux/amd64
+      #     tags: |
+      #       ${{ secrets.DOCKER_USERNAME }}/talentmatch-back:latest
+      #       ${{ secrets.DOCKER_USERNAME }}/talentmatch-back:${{ github.sha }}
+      #     cache-from: type=gha,scope=tm-back
+      #     cache-to: type=gha,mode=max,scope=tm-back
+      #     labels: |
+      #       org.opencontainers.image.source=${{ github.repository }}
+      #       org.opencontainers.image.revision=${{ github.sha }}
+      #       org.opencontainers.image.title=TalentMatch Backend
+      #       org.opencontainers.image.created=${{ github.run_id }}
       - name: Build & Push Backend (TalentMatch)
         uses: docker/build-push-action@v5
         with:
@@ -50,18 +67,27 @@ jobs:
           file: ./TalentMatch/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/talentmatch-back:latest
-            ${{ secrets.DOCKER_USERNAME }}/talentmatch-back:${{ github.sha }}
-          cache-from: type=gha,scope=tm-back
-          cache-to: type=gha,mode=max,scope=tm-back
-          labels: |
-            org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.title=TalentMatch Backend
-            org.opencontainers.image.created=${{ github.run_id }}
+          tags: ericonomena/TalentMatch:latest
 
 
+
+      # - name: Build & Push Frontend (Front-TalentMatch)
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: ./Front-TalentMatch
+      #     file: ./Front-TalentMatch/Dockerfile
+      #     push: true
+      #     platforms: linux/amd64
+      #     tags: |
+      #       ${{ secrets.DOCKER_USERNAME }}/talentmatch-front:latest
+      #       ${{ secrets.DOCKER_USERNAME }}/talentmatch-front:${{ github.sha }}
+      #     cache-from: type=gha,scope=tm-front
+      #     cache-to: type=gha,mode=max,scope=tm-front
+      #     labels: |
+      #       org.opencontainers.image.source=${{ github.repository }}
+      #       org.opencontainers.image.revision=${{ github.sha }}
+      #       org.opencontainers.image.title=TalentMatch Frontend
+      #       org.opencontainers.image.created=${{ github.run_id }}
       - name: Build & Push Frontend (Front-TalentMatch)
         uses: docker/build-push-action@v5
         with:
@@ -69,13 +95,5 @@ jobs:
           file: ./Front-TalentMatch/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/talentmatch-front:latest
-            ${{ secrets.DOCKER_USERNAME }}/talentmatch-front:${{ github.sha }}
-          cache-from: type=gha,scope=tm-front
-          cache-to: type=gha,mode=max,scope=tm-front
-          labels: |
-            org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.title=TalentMatch Frontend
-            org.opencontainers.image.created=${{ github.run_id }}
+          tags: Finaritra24/Front-TalentMatch:latest
+
