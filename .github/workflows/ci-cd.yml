@@ -95,5 +95,5 @@ jobs:
           file: ./Front-TalentMatch/Dockerfile
           push: true
           platforms: linux/amd64
-          tags: kaloina/front-talentMatch:latest
+          tags: kaloina/front-talentmatch:latest
 
