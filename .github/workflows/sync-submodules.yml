@@ -57,7 +57,7 @@ jobs:
 
           if [[ -n "$(git status --porcelain)" ]]; then
             git add .gitmodules TalentMatch Front-TalentMatch
-            git commit -m "chore(submodules): bump to latest refs [skip ci]"
+            git commit -m "chore(submodules): bump to latest refs"
             git push origin "$BRANCH"
             echo "Submodules updated and pushed on $BRANCH."
           else
