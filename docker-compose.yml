@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./TalentMatch
+      dockerfile: Dockerfile
+    container_name: talentmatch-back
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./TalentMatch/.env.production
+    restart: always
+
+  frontend:
+    build:
+      context: ./Front-TalentMatch
+      dockerfile: Dockerfile
+    container_name: talentmatch-front
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always

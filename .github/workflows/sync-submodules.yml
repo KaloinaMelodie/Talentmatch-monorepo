@@ -3,7 +3,7 @@ name: Sync Submodules
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "*/15 * * * *"  
+    - cron: "*/5 * * * *"  
   push:
     paths:
       - ".gitmodules"        
