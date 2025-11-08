@@ -34,17 +34,31 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
-      - name: Ensure Git LFS objects are pulled
+      - name: Ensure Git LFS objects are pulled (root + submodules)
+        shell: bash
         run: |
+          set -euo pipefail
           git lfs install --local
-          git lfs pull
-          # Vérification rapide des poids du modèle (doivent être ~471MB chacun si présents)
-          if [ -f TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/model.safetensors ]; then
-            ls -lh TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/model.safetensors
+
+          # 1) Pull LFS du repo racine mais en forçant le chemin utile
+          git lfs fetch --include="TalentMatch/model/**" --exclude=""
+          git lfs checkout TalentMatch/model || true   # matérialise les blobs
+          git lfs pull --include="TalentMatch/model/**" --exclude=""
+
+          # 2) Si tu as des submodules, faire LFS aussi dedans
+          git submodule foreach --recursive 'git lfs install --local || true'
+          git submodule foreach --recursive 'git lfs fetch --include="TalentMatch/model/**" --exclude="" || true'
+          git submodule foreach --recursive 'git lfs checkout || true'
+          git submodule foreach --recursive 'git lfs pull --include="TalentMatch/model/**" --exclude="" || true'
+
+          echo "== Check sizes =="
+          ls -lh TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/ || true
+          BYTES=$(stat -c%s "TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/model.safetensors" 2>/dev/null || echo 0)
+          if [ "$BYTES" -lt 100000000 ]; then
+            echo "❌ model.safetensors est trop petit ($BYTES octets) → pointeur LFS détecté. Échec volontaire."
+            exit 1
           fi
-          if [ -f TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/pytorch_model.bin ]; then
-            ls -lh TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/pytorch_model.bin
-          fi
+          echo "✅ model.safetensors matérialisé correctement ($BYTES octets)"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
