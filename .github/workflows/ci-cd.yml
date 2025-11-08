@@ -34,31 +34,40 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 0
 
-      - name: Ensure Git LFS objects are pulled (root + submodules)
-        shell: bash
+            - name: Materialize model.safetensors from Hugging Face (no LFS)
         run: |
-          set -euo pipefail
-          git lfs install --local
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir "huggingface_hub>=0.24.0"
+          python - <<'PY'
+          import os
+          from huggingface_hub import snapshot_download
 
-          # 1) Pull LFS du repo racine mais en forçant le chemin utile
-          git lfs fetch --include="TalentMatch/model/**" --exclude=""
-          git lfs checkout TalentMatch/model || true   # matérialise les blobs
-          git lfs pull --include="TalentMatch/model/**" --exclude=""
+          repo_id  = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+          local_dir = "TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2"
 
-          # 2) Si tu as des submodules, faire LFS aussi dedans
-          git submodule foreach --recursive 'git lfs install --local || true'
-          git submodule foreach --recursive 'git lfs fetch --include="TalentMatch/model/**" --exclude="" || true'
-          git submodule foreach --recursive 'git lfs checkout || true'
-          git submodule foreach --recursive 'git lfs pull --include="TalentMatch/model/**" --exclude="" || true'
+          os.makedirs(local_dir, exist_ok=True)
+          # Anti-symlink / anti-xet pour forcer de vrais fichiers
+          os.environ["HF_HUB_ENABLE_XET"] = "0"
 
-          echo "== Check sizes =="
-          ls -lh TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/ || true
-          BYTES=$(stat -c%s "TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/model.safetensors" 2>/dev/null || echo 0)
+          snapshot_download(
+              repo_id=repo_id,
+              local_dir=local_dir,
+              local_dir_use_symlinks=False,
+              allow_patterns=["model.safetensors"],  # on ne prend que le poids
+          )
+          print("✅ Downloaded model.safetensors into", local_dir)
+          PY
+
+      - name: Verify model.safetensors size (>100MB)
+        run: |
+          ls -lh TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/
+          BYTES=$(stat -c%s "TalentMatch/model/paraphrase-multilingual-MiniLM-L12-v2/model.safetensors" || echo 0)
           if [ "$BYTES" -lt 100000000 ]; then
-            echo "❌ model.safetensors est trop petit ($BYTES octets) → pointeur LFS détecté. Échec volontaire."
+            echo "❌ model.safetensors is too small ($BYTES bytes) — refusing to build a broken image."
             exit 1
           fi
-          echo "✅ model.safetensors matérialisé correctement ($BYTES octets)"
+          echo "✅ model.safetensors seems valid ($BYTES bytes)"
+
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
